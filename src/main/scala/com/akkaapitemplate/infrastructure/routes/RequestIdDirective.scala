@@ -1,4 +1,4 @@
-package br.com.akkaapitemplate.infrastructure.routes
+package com.akkaapitemplate.infrastructure.routes
 
 import akka.http.scaladsl.server.Directives._
 import java.util.UUID

@@ -1,12 +1,12 @@
-package br.com.akkaapitemplate.components.user
+package com.akkaapitemplate.components.user
 
 import scala.concurrent.Future
 
-import br.com.akkaapitemplate.infrastructure.persistence.postgres.DbConnection
-import br.com.akkaapitemplate.infrastructure.persistence.postgres.PostgresDriver.api._
+import com.akkaapitemplate.infrastructure.persistence.postgres.DBConnection
+import com.akkaapitemplate.infrastructure.persistence.postgres.PostgresDriver.api._
 import java.util.UUID
 
-object UserRepository extends DbConnection {
+object UserRepository extends DBConnection {
   val table = TableQuery[UserModel]
 
   def loadById(id: UUID): Future[Option[User]] = {
@@ -15,7 +15,7 @@ object UserRepository extends DbConnection {
   }
 }
 
-private class UserModel(tag: Tag) extends Table[User](tag, "users") {
+private[user] class UserModel(tag: Tag) extends Table[User](tag, "users") {
   def uuid = column[Option[UUID]]("uuid", O.PrimaryKey)
   def name = column[String]("name")
 
