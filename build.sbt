@@ -6,14 +6,6 @@ resolvers += Resolver.bintrayRepo("hseeberger", "maven")
 
 unmanagedSourceDirectories in Compile += baseDirectory.value / "src/main/generated-proto"
 
-val databaseURI = new java.net.URI(
-  sys.env.get("DB_URL").getOrElse("postgresql://postgres:postgres@postgres:5432/akka-api-template"))
-
-flywayDriver := "org.postgresql.Driver"
-flywayUrl := s"jdbc:${databaseURI.getScheme}://${databaseURI.getHost}:${databaseURI.getPort}${databaseURI.getPath}"
-flywayUser := databaseURI.getUserInfo.split(":").head
-flywayPassword := databaseURI.getUserInfo.split(":").last
-
 val akkaV = "2.4.16"
 val akkaHttpV = "10.0.1"
 val json4sV = "3.4.1"

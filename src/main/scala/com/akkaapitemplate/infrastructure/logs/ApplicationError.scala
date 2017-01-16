@@ -1,4 +1,4 @@
-package br.com.akkaapitemplate.infrastructure.logs
+package com.akkaapitemplate.infrastructure.logs
 
 object ApplicationError extends Enumeration {
   type ApplicationError = Value

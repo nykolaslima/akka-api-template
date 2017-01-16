@@ -1,4 +1,4 @@
-package br.com.akkaapitemplate.infrastructure.persistence.postgres
+package com.akkaapitemplate.infrastructure.persistence.postgres
 
 import com.github.tminglei.slickpg.{ExPostgresDriver, PgArraySupport, PgEnumSupport, PgJsonSupport}
 

@@ -1,9 +1,9 @@
-package br.com.akkaapitemplate.infrastructure.serialization.json
+package com.akkaapitemplate.infrastructure.serialization.json
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
-import org.json4s.ext.{JavaTypesSerializers, JodaTimeSerializers}
 import org.json4s.{DefaultFormats, jackson}
+import org.json4s.ext.{JavaTypesSerializers, JodaTimeSerializers}
 import spray.json.DefaultJsonProtocol
 
 object MyJsonProtocol extends Json4sSupport with DefaultJsonProtocol with SprayJsonSupport {

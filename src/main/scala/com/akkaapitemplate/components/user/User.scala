@@ -1,4 +1,4 @@
-package br.com.akkaapitemplate.components.user
+package com.akkaapitemplate.components.user
 
 import java.util.UUID
 
