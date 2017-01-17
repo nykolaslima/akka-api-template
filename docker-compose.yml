@@ -1,0 +1,7 @@
+postgres:
+  container_name: postgres
+  image: postgres
+  ports:
+    - 5432:5432
+  volumes:
+    - ./schema.sql:/docker-entrypoint-initdb.d/z01_schema.sql

@@ -29,7 +29,7 @@ class UserServiceActor(repositoryRef: Option[ActorRef] = None) extends Actor wit
 
       userRepositoryActor = createRepository
 
-    case x => log.warning(GelfLogger.warn(s"Unknown message: $x", Map("internal_operation" -> UNKNOWN_MESSAGE)))
+    case x: Any => log.warning(GelfLogger.warn(s"Unknown message: $x", Map("internal_operation" -> UNKNOWN_MESSAGE)))
   }
 
   def createRepository: ActorRef = {
