@@ -45,5 +45,5 @@ class UserRepositoryActor(userRepository: UserRepository = UserRepository) exten
 }
 
 object UserRepositoryActor {
-  def props: Props = Props[UserRepositoryActor]
+  def props: Props = Props(new UserRepositoryActor())
 }

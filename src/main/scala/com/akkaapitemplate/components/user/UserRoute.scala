@@ -22,12 +22,12 @@ trait UserRoute extends RequestIdDirective {
   val userServiceActor = actorSystem.actorOf(UserServiceActor.props, "user-service-actor")
 
   val routes = {
-    pathPrefix("/users" / JavaUUID) { id =>
+    pathPrefix("users" / JavaUUID) { id =>
       get {
         extractRequestId { requestId =>
-          val actorResponse = userServiceActor ? LoadById(requestId = requestId, id = id)
+          val actorResponse = (userServiceActor ? LoadById(requestId = requestId, id = id)).mapTo[Option[User]]
 
-          onComplete(actorResponse.mapTo[Option[User]]) {
+          onComplete(actorResponse) {
             case Success(userOpt) => {
               userOpt match {
                 case Some(user) =>

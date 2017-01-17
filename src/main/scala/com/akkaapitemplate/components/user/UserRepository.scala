@@ -16,7 +16,7 @@ trait UserRepository extends DBConnection {
 }
 
 private[user] class UserModel(tag: Tag) extends Table[User](tag, "users") {
-  def uuid = column[Option[UUID]]("uuid", O.PrimaryKey)
+  def uuid = column[Option[UUID]]("id", O.PrimaryKey)
   def name = column[String]("name")
 
   def * = (
