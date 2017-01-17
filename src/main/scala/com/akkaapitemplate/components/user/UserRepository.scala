@@ -6,7 +6,7 @@ import com.akkaapitemplate.infrastructure.persistence.postgres.DBConnection
 import com.akkaapitemplate.infrastructure.persistence.postgres.PostgresDriver.api._
 import java.util.UUID
 
-object UserRepository extends DBConnection {
+trait UserRepository extends DBConnection {
   val table = TableQuery[UserModel]
 
   def loadById(id: UUID): Future[Option[User]] = {
@@ -24,3 +24,5 @@ private[user] class UserModel(tag: Tag) extends Table[User](tag, "users") {
     name
     ) <> (User.tupled, User.unapply)
 }
+
+object UserRepository extends UserRepository
