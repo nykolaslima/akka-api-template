@@ -14,6 +14,8 @@ val slickV = "3.1.1"
 
 lazy val commonDependencies = Seq(
   "org.scalatest" %% "scalatest" % "3.0.1" % "test",
+  "org.scalamock" %% "scalamock-scalatest-support" % "3.4.2" % Test,
+  "org.scalacheck" %% "scalacheck" % "1.13.4" % "test",
   "ch.qos.logback" % "logback-classic" % "1.1.3",
   "joda-time" % "joda-time" % "2.8"
 )
