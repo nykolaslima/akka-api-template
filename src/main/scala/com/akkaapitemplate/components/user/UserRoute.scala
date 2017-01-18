@@ -10,10 +10,11 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.akkaapitemplate.components.user.ActorMessages.LoadById
 import com.akkaapitemplate.infrastructure.logs.GelfLogger
-import com.akkaapitemplate.infrastructure.routes.RequestIdDirective
+import com.akkaapitemplate.infrastructure.routes.ApplicationRoute
+import com.akkaapitemplate.resources.UserResource
 import org.slf4j.LoggerFactory
 
-trait UserRoute extends RequestIdDirective {
+trait UserRoute extends ApplicationRoute {
   implicit def actorSystem: ActorSystem
   implicit val timeout = Timeout(1.second)
 
@@ -31,10 +32,9 @@ trait UserRoute extends RequestIdDirective {
             case Success(userOpt) => {
               userOpt match {
                 case Some(user) =>
-                  import com.akkaapitemplate.infrastructure.serialization.json.MyJsonProtocol._
-
                   log.info(GelfLogger.buildWithRequestId(requestId).info("User retrieved successfully"))
-                  complete((StatusCodes.OK, user))
+                  val resource = UserResource(user.id.get.toString, user.name)
+                  complete((StatusCodes.OK, resource))
 
                 case None =>
                   log.info(GelfLogger.buildWithRequestId(requestId).info("User not found"))
