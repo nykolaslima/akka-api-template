@@ -1,7 +1,9 @@
 postgres:
-  container_name: postgres
+  container_name: akka-api-template
   image: postgres
+  environment:
+    - PGPASSWORD=postgres
   ports:
     - 5432:5432
   volumes:
-    - ./schema.sql:/docker-entrypoint-initdb.d/z01_schema.sql
+    - ./src/main/resources/db:/docker-entrypoint-initdb.d
