@@ -1,5 +1,7 @@
 package com.akkaapitemplate.infrastructure.logs
 
+import scala.util.parsing.json.{JSON, JSONFormat, JSONObject}
+
 import com.akkaapitemplate.infrastructure.logs.SysLogLevel.SysLogLevel
 import java.util.UUID
 import org.joda.time.DateTime
@@ -42,8 +44,6 @@ class GelfLogger(requestId: Option[UUID] = None) {
   def error(message: String, mapArgs: Map[String, Any] = Map(), fullMessage: Option[String] = None) = this.apply(message, fullMessage, SysLogLevel.ERROR, mapArgs)
 
   private def apply(message: String, fullMessage: Option[String] = None, logLevel: SysLogLevel, mapArgs: Map[String, Any] = Map()) = {
-    import com.akkaapitemplate.infrastructure.serialization.json.MyJsonProtocol._
-
     val default = Map(
       "timestamp" -> new DateTime().getMillis,
       "level" -> logLevel.id,
@@ -54,7 +54,7 @@ class GelfLogger(requestId: Option[UUID] = None) {
     )
 
     val customMap = mapArgs.map(tuple => s"_${tuple._1}" -> tuple._2)
-    write(default ++ customMap)
+    JSONObject(default ++ customMap).toString(JSONFormat.defaultFormatter)
   }
 }
 

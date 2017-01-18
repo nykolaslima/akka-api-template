@@ -46,14 +46,10 @@ lazy val databaseDependencies = Seq(
   "com.github.tminglei" %% "slick-pg" % "0.14.3"
 )
 
-lazy val jsonDependencies = Seq(
-  "org.json4s" %% "json4s-jackson" % json4sV,
-  "org.json4s" %% "json4s-ext" % json4sV
-)
-
 lazy val googleDependencies = Seq(
   "com.google.protobuf" % "protobuf-java" % "3.1.0",
-  "com.trueaccord.scalapb" %% "scalapb-runtime" % "0.5.26"
+  "com.trueaccord.scalapb" %% "scalapb-runtime" % "0.5.47",
+  "com.trueaccord.scalapb" %% "scalapb-json4s" % "0.1.6"
 )
 
 lazy val kamonDependencies = Seq(
@@ -68,7 +64,6 @@ libraryDependencies ++= (
     akkaHttpDependencies ++
     akkaComplementsDependencies ++
     databaseDependencies ++
-    jsonDependencies ++
     googleDependencies ++
     kamonDependencies
   )
