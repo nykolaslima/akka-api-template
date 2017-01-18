@@ -1,0 +1,5 @@
+package com.akkaapitemplate.infrastructure.routes
+
+import com.akkaapitemplate.infrastructure.serialization.ApplicationMarshalling
+
+trait ApplicationRoute extends ApplicationMarshalling with RequestIdDirective

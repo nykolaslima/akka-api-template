@@ -1,5 +1,5 @@
 postgres:
-  container_name: akka-api-template
+  container_name: postgres
   image: postgres
   environment:
     - PGPASSWORD=postgres
