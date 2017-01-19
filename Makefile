@@ -58,7 +58,7 @@ MIGRATE_DB_PASSWORD := postgres
 MIGRATE_DB_URL := jdbc:postgresql://postgres/akkaapitemplate
 
 PROTO_REPOSITORY = nykolaslima/akka-api-template-resources
-PROTO_VERSION = v1.0.0
+PROTO_VERSION = v1.2.0
 PROTOS_PATH = tmp/resources
 RESOURCES_PATH = src/main/generated-proto
 

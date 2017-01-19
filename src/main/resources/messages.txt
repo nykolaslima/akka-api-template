@@ -1,0 +1,3 @@
+validation.required {0} é obrigatório
+
+user.name Nome

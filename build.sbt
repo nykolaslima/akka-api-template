@@ -58,6 +58,11 @@ lazy val kamonDependencies = Seq(
   "org.aspectj" % "aspectjweaver" % "1.8.10"
 )
 
+lazy val validation = Seq(
+  "org.typelevel" %% "cats" % "0.4.0",
+  "com.osinka.i18n" %% "scala-i18n" % "1.0.0"
+)
+
 libraryDependencies ++= (
   commonDependencies ++
     akkaDependencies ++
@@ -65,5 +70,6 @@ libraryDependencies ++= (
     akkaComplementsDependencies ++
     databaseDependencies ++
     googleDependencies ++
-    kamonDependencies
+    kamonDependencies ++
+    validation
   )
