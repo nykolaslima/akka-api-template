@@ -1,8 +1,12 @@
+val ver = if (System.getenv("VERSION") == null) "noversion" else System.getenv("VERSION")
+
 name := "akka-api-template"
-version := "1.0.0"
+version := ver
 scalaVersion := "2.11.8"
 
 resolvers += Resolver.bintrayRepo("hseeberger", "maven")
+
+enablePlugins(JavaAppPackaging)
 
 unmanagedSourceDirectories in Compile += baseDirectory.value / "src/main/generated-proto"
 

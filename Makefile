@@ -1,15 +1,32 @@
-.PHONY = \
-	db/migrate \
-	dependencies/services/up
-
 #########
 # Tasks #
 #########
 
+# Build application (fat jar)
+build: dependencies/resources
+	$(_sbt-cmd) universal:packageZipTarball
+
+# Build docker image
+image: build
+	- docker build \
+	      --build-arg version=$(version) \
+	      --tag $(tag) \
+	      --tag $(company_name)/$(project_name) \
+	      .
+
+# Push docker image
+image/publish: image
+	- docker push $(tag)
+	- docker push $(company_name)/$(project_name)
+
 # Start services and third-party dependencies such as postgres, redis, etc
-dependencies/services/up: dependencies/services/run db/migrate
+dependencies/services: dependencies/services/run db/migrate
 dependencies/services/run:
 	- docker-compose up -d
+
+# Stop services and third-party dependencies
+dependencies/clean/services:
+	- docker-compose stop && docker-compose rm -vf
 
 # Apply migration placed in `/src/main/resources/db/migrations:/flyway/sql` into specified database via
 # args `MIGRATE_DB_USER`, `MIGRATE_DB_PASSWORD` and `MIGRATE_DB_URL`:
@@ -49,6 +66,26 @@ fetch/resources:
 	        --depth 1 git@github.com:$(PROTO_REPOSITORY).git \
 	        $(PROTOS_PATH) 2> /dev/null
 
+# Setup, run tests and then tear down
+#
+#   make test
+#
+test: dependencies/resources dependencies/services test/run dependencies/clean/services
+
+# Compile project with test folder included
+#
+#   make/compile
+#
+test/compile: dependencies/resources
+	$(_sbt-cmd) test:compile
+
+# Run tests
+#
+#   make test/run
+#
+test/run:
+	$(_sbt-cmd-with-dependencies) test
+
 ###############
 # Definitions #
 ###############
@@ -73,3 +110,24 @@ _protoc_cmd = \
       -v ${PWD}:/target \
       -w /target \
       --rm brennovich/protobuf-tools:latest
+
+company_name = nykolaslima
+project_name = akka-api-template
+version = $(shell git rev-parse --short HEAD | tr -d "\n")
+tag = $(company_name)/$(project_name):$(version)
+
+# Replace `options` with desired value
+#
+# More details: https://www.gnu.org/software/make/manual/make.html#Substitution-Refs
+#
+_sbt-cmd = $(_sbt-cmd-base:options=)
+_sbt-cmd-with-dependencies = $(_sbt-cmd-base:options=--link postgres:postgres)
+_sbt-cmd-base := \
+	docker run --rm -it \
+		-v $(PWD):/target \
+		-v $(HOME)/.ivy2:/root/.ivy2 \
+		-v $(HOME)/.m2:/root/.m2 \
+		-w /target \
+		-e VERSION=$(version) \
+		options \
+		hseeberger/scala-sbt:latest sbt
