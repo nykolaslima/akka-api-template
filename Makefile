@@ -1,10 +1,29 @@
 .PHONY = \
 	db/migrate \
-	dependencies/services/up
+	dependencies/services/up \
+	image \
+	image/publish
 
 #########
 # Tasks #
 #########
+
+# Build application
+build:
+	VERSION=$(version) sbt clean compile universal:packageZipTarball
+
+# Build docker image
+image: build
+	- docker build \
+	      --build-arg version=$(version) \
+	      --tag $(tag) \
+	      --tag $(company_name)/$(project_name) \
+	      .
+
+# Push docker image
+image/publish: image
+	- docker push $(tag)
+	- docker push $(company_name)/$(project_name)
 
 # Start services and third-party dependencies such as postgres, redis, etc
 dependencies/services/up:
@@ -23,6 +42,11 @@ db/migrate:
 ###############
 # Definitions #
 ###############
+
+company_name = com.templates
+project_name = akka-api
+version = $(shell git rev-parse --short HEAD | tr -d "\n")
+tag = $(company_name)/$(project_name):$(version)
 
 MIGRATE_DB_USER := postgres
 MIGRATE_DB_PASSWORD := postgres
