@@ -1,0 +1,82 @@
+{
+  "paths": {
+    "/users": {
+      "post": {
+        "tags": [
+          "Public"
+        ],
+        "summary": "Create a user",
+        "description": "This endpoint receive a user to be created",
+        "operationId": "CreateUser",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "user",
+            "in": "body",
+            "description": "User data to be created",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserResource"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created used",
+            "schema": {
+              "$ref": "#/definitions/UserResource"
+            }
+          },
+          "400": {
+            "description": "validation errors response",
+            "schema": {
+              "$ref": "#/definitions/RejectionsResource"
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "tags": [
+          "Public"
+        ],
+        "summary": "Find a user by id",
+        "description": "This endpoint tries to find a user with a given id",
+        "operationId": "LoadById",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "Id as UUID",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User entry successfully found and returned",
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/UserResource"
+            }
+          },
+          "404": {
+            "description": "User not found"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "info": {
+    "description": "akkaapitemplate API",
+    "version": "1.0.0",
+    "title": "akkaapitemplate API",
+    "termsOfService": "https://github.com/nykolaslima/akka-api-template",
+    "license": {
+      "name": "Copyright",
+      "url": "https://github.com/nykolaslima/akka-api-template"
+    },
+    "contact": {
+      "email": "nykolas.lima@gmail.com"
+    }
+  }
+}
