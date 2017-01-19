@@ -21,7 +21,6 @@ dependencies:
 test:
   override:
     - sudo service postgresql stop
-    - docker-compose up -d
     - make test
 
 deployment:
