@@ -1,5 +1,6 @@
 package com.akkaapitemplate.components.user
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 import com.akkaapitemplate.infrastructure.persistence.postgres.DBConnection
@@ -12,6 +13,12 @@ trait UserRepository extends DBConnection {
   def loadById(id: UUID): Future[Option[User]] = {
     val query = table.filter(_.uuid === id).result.headOption
     run(query)
+  }
+
+  def add(user: User): Future[User] = {
+    val userToAdd = user.copy(id = Some(UUID.randomUUID))
+    val query = table += userToAdd
+    run(query).map(_ => userToAdd)
   }
 }
 
