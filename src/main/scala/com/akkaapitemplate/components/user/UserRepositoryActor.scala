@@ -5,7 +5,7 @@ import scala.util.{Failure, Success}
 
 import akka.actor.{Actor, ActorLogging, Props}
 import akka.event.LoggingReceive
-import com.akkaapitemplate.components.user.ActorMessages.{Fail, LoadById}
+import com.akkaapitemplate.components.user.ActorMessages.{Create, Fail, LoadById}
 import com.akkaapitemplate.infrastructure.logs.ApplicationError._
 import com.akkaapitemplate.infrastructure.logs.GelfLogger
 
@@ -19,18 +19,34 @@ class UserRepositoryActor(userRepository: UserRepository = UserRepository) exten
     case LoadById(requestId, originalSender, id) =>
       val replyTo = originalSender.getOrElse(sender())
 
-      log.info(GelfLogger.buildWithRequestId(requestId).info(s"Requesting to load the User id: $id"))
-
       userRepository.loadById(id).onComplete {
         case Success(message) =>
           log.info(GelfLogger.buildWithRequestId(requestId)
-            .info(s"Loading an optional User id: $id and replying to original sender"))
+            .info(s"LoadById - Loaded an optional User id: $id and replying to sender"))
 
           replyTo ! message
 
         case Failure(message) =>
           log.error(GelfLogger.buildWithRequestId(requestId)
-            .error(s"Failed to load the User id: $id", Map(), fullMessage = Some(message.toString)), message)
+            .error(s"LoadById - Failed to load the User id: $id", Map(), fullMessage = Some(message.toString)), message)
+
+          replyTo ! akka.actor.Status.Failure(message)
+          self ! Fail(message)
+      }
+
+    case Create(requestId, originalSender, user) =>
+      val replyTo = originalSender.getOrElse(sender())
+
+      userRepository.add(user).onComplete {
+        case Success(message) =>
+          log.info(GelfLogger.buildWithRequestId(requestId)
+            .info(s"Create - Added User: $user and replying to sender"))
+
+          replyTo ! Right(message)
+
+        case Failure(message) =>
+          log.error(GelfLogger.buildWithRequestId(requestId)
+            .error(s"Create - Failed to add the User: $user", Map(), fullMessage = Some(message.toString)), message)
 
           replyTo ! akka.actor.Status.Failure(message)
           self ! Fail(message)
