@@ -14,11 +14,6 @@ image: build
 	      --tag $(company_name)/$(project_name) \
 	      .
 
-# Push docker image
-image/publish: image
-	- docker push $(tag)
-	- docker push $(company_name)/$(project_name)
-
 # Start services and third-party dependencies such as postgres, redis, etc
 dependencies/services: dependencies/services/run db/migrate
 dependencies/services/run:
@@ -85,6 +80,32 @@ test/compile: dependencies/resources
 #
 test/run:
 	$(_sbt-cmd-with-dependencies) test
+
+# Configure gcloud tool to be used by circleci
+#   make circleci/gcloud/setup
+#
+circleci/gcloud/setup:
+	- sudo /opt/google-cloud-sdk/bin/gcloud --quiet components update --version 120.0.0
+	- sudo /opt/google-cloud-sdk/bin/gcloud --quiet components update --version 120.0.0 kubectl
+	- echo $GCLOUD_SERVICE_KEY | base64 --decode -i > ${HOME}/gcloud-service-key.json
+	- sudo /opt/google-cloud-sdk/bin/gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
+	- sudo /opt/google-cloud-sdk/bin/gcloud config set project $PROJECT_NAME
+	- sudo /opt/google-cloud-sdk/bin/gcloud --quiet config set container/cluster $CLUSTER_NAME
+	- sudo /opt/google-cloud-sdk/bin/gcloud config set compute/zone ${CLOUDSDK_COMPUTE_ZONE}
+	- sudo /opt/google-cloud-sdk/bin/gcloud --quiet container clusters get-credentials $CLUSTER_NAME
+
+# Push docker image to gcloud registry
+#   make circleci/gcloud/image/publish
+#
+circleci/gcloud/image/publish: image
+	- sudo /opt/google-cloud-sdk/bin/gcloud docker push us.gcr.io/${PROJECT_NAME}/$(version)
+
+# Deploy a new version to GKE cluster
+#   make circleci/gcloud/deploy
+#
+circleci/gcloud/deploy: circleci/gcloud/setup circleci/gcloud/image/publish
+	- sudo chown -R ubuntu:ubuntu /home/ubuntu/.kube
+	- kubectl patch deployment ${CLUSTER_NAME} -p '{"spec":{"template":{"spec":{"containers":[{"name":"${CLUSTER_NAME}","image":"us.gcr.io/${PROJECT_NAME}/$(version):'"$CIRCLE_SHA1"'"}]}}}}'
 
 ###############
 # Definitions #
