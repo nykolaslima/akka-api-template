@@ -9,15 +9,9 @@ build: dependencies/resources
 # Build docker image
 image: build
 	- docker build \
-	      --build-arg version=$(version) \
-	      --tag $(tag) \
-	      --tag $(company_name)/$(project_name) \
-	      .
-
-# Push docker image
-image/publish: image
-	- docker push $(tag)
-	- docker push $(company_name)/$(project_name)
+	--build-arg version=$(version) \
+	-t ${PROJECT_NAME}:$(version) .
+	- docker tag ${PROJECT_NAME}:$(version) us.gcr.io/${GPROJECT_NAME}/${PROJECT_NAME}:$(version)
 
 # Start services and third-party dependencies such as postgres, redis, etc
 dependencies/services: dependencies/services/run db/migrate
@@ -86,6 +80,39 @@ test/compile: dependencies/resources
 test/run:
 	$(_sbt-cmd-with-dependencies) test
 
+# Configure gcloud tool to be used by circleci
+#   make circleci/gcloud/setup
+#
+circleci/gcloud/setup:
+	- sudo /opt/google-cloud-sdk/bin/gcloud --quiet components update
+	- sudo /opt/google-cloud-sdk/bin/gcloud --quiet components update kubectl
+	- echo ${GCLOUD_SERVICE_KEY} | base64 --decode -i > ${HOME}/gcloud-service-key.json
+	- sudo /opt/google-cloud-sdk/bin/gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
+	- sudo /opt/google-cloud-sdk/bin/gcloud config set project ${GPROJECT_NAME}
+	- sudo /opt/google-cloud-sdk/bin/gcloud --quiet config set container/cluster ${CLUSTER_NAME}
+	- sudo /opt/google-cloud-sdk/bin/gcloud config set compute/zone ${CLOUDSDK_COMPUTE_ZONE}
+	- sudo /opt/google-cloud-sdk/bin/gcloud --quiet container clusters get-credentials ${CLUSTER_NAME}
+	- sudo /opt/google-cloud-sdk/bin/gcloud config set container/use_client_certificate True
+
+# Push docker image to gcloud registry
+#   make circleci/gcloud/image/publish
+#
+circleci/gcloud/image/publish: image
+	- sudo /opt/google-cloud-sdk/bin/gcloud docker -- push us.gcr.io/${GPROJECT_NAME}/${PROJECT_NAME}:$(version)
+
+# Deploy a new version to GKE cluster
+#   make circleci/gcloud/deploy
+#
+circleci/gcloud/deploy: circleci/gcloud/setup circleci/gcloud/image/publish
+	- sudo chown -R ubuntu:ubuntu /home/ubuntu/.kube
+	- make db/migrate MIGRATE_DB_USER=${CI_MIGRATE_DB_USER} MIGRATE_DB_PASSWORD=${CI_MIGRATE_DB_PASSWORD} MIGRATE_DB_URL=${CI_MIGRATE_DB_URL}
+	- m4 \
+          -Dapp_env=qa \
+          -Ddb_url=${DB_URL} \
+          -Dversion=$(version) \
+          deploy/deploy-macros.m4 deploy/deployment.template.yaml > deployment-qa-$(version).yaml
+	- kubectl apply -f deployment-qa-$(version).yaml --record
+
 ###############
 # Definitions #
 ###############
@@ -111,10 +138,7 @@ _protoc_cmd = \
       -w /target \
       --rm brennovich/protobuf-tools:latest
 
-company_name = nykolaslima
-project_name = akka-api-template
 version = $(shell git rev-parse --short HEAD | tr -d "\n")
-tag = $(company_name)/$(project_name):$(version)
 
 # Replace `options` with desired value
 #

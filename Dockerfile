@@ -15,4 +15,6 @@ RUN rm akka-api-template-${version}.tgz
 
 WORKDIR /usr/local/app/akka-api-template-${version}
 
+EXPOSE 8080
+
 ENTRYPOINT ["./bin/akka-api-template"]
