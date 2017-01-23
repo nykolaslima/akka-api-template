@@ -9,13 +9,14 @@ machine:
     AWS_DEFAULT_REGION: "us-east-1"
     SBT_VERSION: "0.13.13"
     SBT_OPTS: "-Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled"
+    PROJECT_NAME: "akka-api-template"
+    CLUSTER_NAME: "akka-api-template"
+    CLOUDSDK_COMPUTE_ZONE: "us-east1-d"
 dependencies:
   cache_directories:
     - "~/.m2"
     - "~/.ivy2"
     - "~/.sbt"
-  pre:
-    - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASSWORD
   override:
     - make test/compile
 test:
@@ -27,4 +28,4 @@ deployment:
   hub:
     branch: master
     commands:
-      - make image/publish
+      - make circleci/gcloud/deploy
