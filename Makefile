@@ -85,9 +85,9 @@ test/run:
 #   make circleci/gcloud/setup
 #
 circleci/gcloud/setup:
-	- sudo /opt/google-cloud-sdk/bin/gcloud --quiet components update --version 120.0.0
-	- sudo /opt/google-cloud-sdk/bin/gcloud --quiet components update --version 120.0.0 kubectl
-	- echo $GCLOUD_SERVICE_KEY | base64 --decode -i > ${HOME}/gcloud-service-key.json
+	- sudo /opt/google-cloud-sdk/bin/gcloud --quiet components update
+	- sudo /opt/google-cloud-sdk/bin/gcloud --quiet components update kubectl
+	- echo ${GCLOUD_SERVICE_KEY} | base64 --decode -i > ${HOME}/gcloud-service-key.json
 	- sudo /opt/google-cloud-sdk/bin/gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
 	- sudo /opt/google-cloud-sdk/bin/gcloud config set project $PROJECT_NAME
 	- sudo /opt/google-cloud-sdk/bin/gcloud --quiet config set container/cluster $CLUSTER_NAME
@@ -105,7 +105,7 @@ circleci/gcloud/image/publish: image
 #
 circleci/gcloud/deploy: circleci/gcloud/setup circleci/gcloud/image/publish
 	- sudo chown -R ubuntu:ubuntu /home/ubuntu/.kube
-	- kubectl patch deployment ${CLUSTER_NAME} -p '{"spec":{"template":{"spec":{"containers":[{"name":"${CLUSTER_NAME}","image":"us.gcr.io/${PROJECT_NAME}/$(version):'"$CIRCLE_SHA1"'"}]}}}}'
+	- kubectl patch deployment ${CLUSTER_NAME} -p '{"spec":{"template":{"spec":{"containers":[{"name":"${CLUSTER_NAME}","image":"us.gcr.io/${PROJECT_NAME}/$(version):$(version)"}]}}}}'
 
 ###############
 # Definitions #
