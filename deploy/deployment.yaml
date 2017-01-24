@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Deployment
+metadata:
+  labels:
+    name: api-node
+  name: api-node
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        name: api-node
+    spec:
+      containers:
+      - image: gcr.io/<GPROJECT_NAME>/<PROJECT_NAME>:<VERSION>
+        name: api-node
+        ports:
+        - containerPort: 8080

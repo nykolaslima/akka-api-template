@@ -8,8 +8,8 @@ build: dependencies/resources
 
 # Build docker image
 image: build
-	- docker build -t us.gcr.io/${PROJECT_NAME}/${PROJECT_NAME}:$(version) .
-	- docker tag us.gcr.io/${PROJECT_NAME}/${PROJECT_NAME}:$(version) us.gcr.io/${PROJECT_NAME}/${PROJECT_NAME}:latest
+	- docker build -t ${PROJECT_NAME}:$(version) .
+	- docker tag ${PROJECT_NAME}:$(version) us.gcr.io/${GPROJECT_NAME}/${PROJECT_NAME}:$(version)
 
 # Start services and third-party dependencies such as postgres, redis, etc
 dependencies/services: dependencies/services/run db/migrate
@@ -86,7 +86,7 @@ circleci/gcloud/setup:
 	- sudo /opt/google-cloud-sdk/bin/gcloud --quiet components update kubectl
 	- echo ${GCLOUD_SERVICE_KEY} | base64 --decode -i > ${HOME}/gcloud-service-key.json
 	- sudo /opt/google-cloud-sdk/bin/gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
-	- sudo /opt/google-cloud-sdk/bin/gcloud config set project ${PROJECT_NAME}
+	- sudo /opt/google-cloud-sdk/bin/gcloud config set project ${GPROJECT_NAME}
 	- sudo /opt/google-cloud-sdk/bin/gcloud --quiet config set container/cluster ${CLUSTER_NAME}
 	- sudo /opt/google-cloud-sdk/bin/gcloud config set compute/zone ${CLOUDSDK_COMPUTE_ZONE}
 	- sudo /opt/google-cloud-sdk/bin/gcloud --quiet container clusters get-credentials ${CLUSTER_NAME}
@@ -95,14 +95,13 @@ circleci/gcloud/setup:
 #   make circleci/gcloud/image/publish
 #
 circleci/gcloud/image/publish: image
-	- sudo /opt/google-cloud-sdk/bin/gcloud docker push us.gcr.io/${PROJECT_NAME}/${PROJECT_NAME}:$(version)
+	- sudo /opt/google-cloud-sdk/bin/gcloud docker -- push us.gcr.io/${GPROJECT_NAME}/${PROJECT_NAME}:$(version)
 
 # Deploy a new version to GKE cluster
 #   make circleci/gcloud/deploy
 #
 circleci/gcloud/deploy: circleci/gcloud/setup circleci/gcloud/image/publish
 	- sudo chown -R ubuntu:ubuntu /home/ubuntu/.kube
-	- kubectl patch deployment ${CLUSTER_NAME} -p '{"spec":{"template":{"spec":{"containers":[{"name":"${CLUSTER_NAME}","image":"us.gcr.io/${PROJECT_NAME}/$(version):$(version)"}]}}}}'
 
 ###############
 # Definitions #

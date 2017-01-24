@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: api-service
+  name: api-service
+spec:
+  ports:
+  - port: 8080
+  selector:
+    name: api-node
