@@ -8,7 +8,9 @@ build: dependencies/resources
 
 # Build docker image
 image: build
-	- docker build -t ${PROJECT_NAME}:$(version) .
+	- docker build \
+	--build-arg version=$(version) \
+	-t ${PROJECT_NAME}:$(version) .
 	- docker tag ${PROJECT_NAME}:$(version) us.gcr.io/${GPROJECT_NAME}/${PROJECT_NAME}:$(version)
 
 # Start services and third-party dependencies such as postgres, redis, etc
