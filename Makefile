@@ -8,11 +8,8 @@ build: dependencies/resources
 
 # Build docker image
 image: build
-	- docker build \
-	      --build-arg version=$(version) \
-	      --tag $(tag) \
-	      --tag $(company_name)/$(project_name) \
-	      .
+	- docker build -t us.gcr.io/${PROJECT_NAME}/${PROJECT_NAME}:$(version) .
+	- docker tag us.gcr.io/${PROJECT_NAME}/${PROJECT_NAME}:$(version) us.gcr.io/${PROJECT_NAME}/${PROJECT_NAME}:latest
 
 # Start services and third-party dependencies such as postgres, redis, etc
 dependencies/services: dependencies/services/run db/migrate
@@ -98,7 +95,7 @@ circleci/gcloud/setup:
 #   make circleci/gcloud/image/publish
 #
 circleci/gcloud/image/publish: image
-	- sudo /opt/google-cloud-sdk/bin/gcloud docker push us.gcr.io/${PROJECT_NAME}/$(version)
+	- sudo /opt/google-cloud-sdk/bin/gcloud docker push us.gcr.io/${PROJECT_NAME}/${PROJECT_NAME}:$(version)
 
 # Deploy a new version to GKE cluster
 #   make circleci/gcloud/deploy
@@ -132,10 +129,7 @@ _protoc_cmd = \
       -w /target \
       --rm brennovich/protobuf-tools:latest
 
-company_name = nykolaslima
-project_name = akka-api-template
 version = $(shell git rev-parse --short HEAD | tr -d "\n")
-tag = $(company_name)/$(project_name):$(version)
 
 # Replace `options` with desired value
 #
