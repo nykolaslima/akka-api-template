@@ -12,7 +12,12 @@ spec:
         name: api-node
     spec:
       containers:
-      - image: us.gcr.io/akka-api-template/api:f8abd20
+      - image: us.gcr.io/akka-api-template/api:__version__
         name: api-node
+        env:
+        - name: DB_URL
+          value: "__db_url__"
+        - name: environment
+          value: "__environment__"
         ports:
         - containerPort: 8080
