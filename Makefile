@@ -92,6 +92,7 @@ circleci/gcloud/setup:
 	- sudo /opt/google-cloud-sdk/bin/gcloud --quiet config set container/cluster ${CLUSTER_NAME}
 	- sudo /opt/google-cloud-sdk/bin/gcloud config set compute/zone ${CLOUDSDK_COMPUTE_ZONE}
 	- sudo /opt/google-cloud-sdk/bin/gcloud --quiet container clusters get-credentials ${CLUSTER_NAME}
+	- sudo /opt/google-cloud-sdk/bin/gcloud config set container/use_client_certificate True
 
 # Push docker image to gcloud registry
 #   make circleci/gcloud/image/publish
@@ -104,6 +105,8 @@ circleci/gcloud/image/publish: image
 #
 circleci/gcloud/deploy: circleci/gcloud/setup circleci/gcloud/image/publish
 	- sudo chown -R ubuntu:ubuntu /home/ubuntu/.kube
+	- make db/migrate MIGRATE_DB_USER=${CI_MIGRATE_DB_USER} MIGRATE_DB_PASSWORD=${CI_MIGRATE_DB_PASSWORD} MIGRATE_DB_URL=${CI_MIGRATE_DB_URL}
+	- ./deploy/bin/trigger.sh qa ${DB_URL} $(version)
 
 ###############
 # Definitions #
