@@ -12,7 +12,7 @@
 
 environment=${1:-$ENVIRONMENT}
 db_url=${2:-$DB_URL}
-version=${2:-$VERSION}
+version=${3:-$VERSION}
 
 version=${version:-$(git rev-parse --short HEAD | tr -d "\n")}
 
@@ -20,7 +20,7 @@ if [[ "$environment" && "$db_url" && "$version" ]]; then
   config_file=deployment-$environment-$version.yaml
 
   m4 \
-    -Denvironment=$environment \
+    -Dapp_env=$environment \
     -Ddb_url=$db_url \
     -Dversion=$version \
     deploy/deploy-macros.m4 deploy/deployment.template.yaml > $config_file

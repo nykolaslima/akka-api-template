@@ -18,6 +18,6 @@ spec:
         - name: DB_URL
           value: "__db_url__"
         - name: environment
-          value: "__environment__"
+          value: "__app_env__"
         ports:
         - containerPort: 8080
