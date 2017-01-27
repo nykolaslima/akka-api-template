@@ -1,0 +1,8 @@
+{
+  "swagger": "2.0",
+  "host": "localhost:9090",
+  "basePath": "/",
+  "schemes": [
+    "http"
+  ]
+}

@@ -5,7 +5,7 @@ import scala.util.{Failure, Success}
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
-import com.typesafe.config.ConfigFactory
+import com.akkaapitemplate.infrastructure.config.AppConfig._
 import org.slf4j.LoggerFactory
 
 object Boot extends App {
@@ -13,7 +13,6 @@ object Boot extends App {
   implicit val materializer = ActorMaterializer()
   implicit val executionContext = system.dispatcher
 
-  val config = ConfigFactory.load()
   val log = LoggerFactory.getLogger(this.getClass)
 
   val mainRoute = new MainRoute()
