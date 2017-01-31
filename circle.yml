@@ -24,7 +24,6 @@ test:
   override:
     - sudo service postgresql stop
     - make test
-    - make circleci/gcloud/deploy
 
 deployment:
   hub:
