@@ -1,6 +1,5 @@
 package com.akkaapitemplate.components.swagger
 
-import scala.util.parsing.json.{JSONFormat, JSONObject}
 import scala.util.{Failure, Success}
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
