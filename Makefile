@@ -3,7 +3,7 @@
 #########
 
 # Build application (fat jar)
-build: dependencies/resources
+build: dependencies/resources dependencies/swagger-ui
 	$(_sbt-cmd) universal:packageZipTarball
 
 # Build docker image
@@ -34,24 +34,30 @@ db/migrate:
 
 # Compile download proto files from `PROTOS_PATH` and output generated classes into `RESOURCES_PATH`
 #
-#   make dependencies/resources
-#
 dependencies/resources: dependencies/clean/resources fetch/resources
 	- $(_protoc_cmd) scalapbc --proto_path=./$(PROTOS_PATH) \
-            --scala_out=flat_package:./$(RESOURCES_PATH) $(shell find "./$(PROTOS_PATH)" -name "*.proto")
+	      --scala_out=flat_package:./$(RESOURCES_PATH) $(shell find "./$(PROTOS_PATH)" -name "*.proto")
 
 # Clean downloaded proto files directory `PROTOS_PATH` and generated classes directory `RESOURCES_PATH`
-#
-#   make dependencies/clean/resources
 #
 dependencies/clean/resources:
 	- rm -rf $(PROTOS_PATH) $(RESOURCES_PATH)
 
+# Download latest version of `swagger-ui` in order to provided a built application with swagger interface
+#
+dependencies/swagger-ui:
+	- rm -rf src/main/resources/public/swagger
+	- mkdir -p src/main/resources/public/swagger
+	- git clone \
+	        --branch v2.2.8 \
+	        --depth 1 https://github.com/swagger-api/swagger-ui.git \
+	        tmp/swagger 2> /dev/null
+	- mv tmp/swagger/dist/** src/main/resources/public/swagger
+	- cp src/main/resources/api-docs/index.html src/main/resources/public/swagger/index.html
+
 # Download proto resources from specified Github repository `PROTO_REPOSITORY` and tag `PROTO_VERSION`.
 # The downloaded proto files will be placed into `PROTOS_PATH` and it also created the generated
 # classes directory `RESOURCES_PATH`.
-#
-#   make fetch/resources
 #
 fetch/resources:
 	- mkdir -p $(PROTOS_PATH) $(RESOURCES_PATH)
