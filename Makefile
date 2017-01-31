@@ -106,7 +106,12 @@ circleci/gcloud/image/publish: image
 circleci/gcloud/deploy: circleci/gcloud/setup circleci/gcloud/image/publish
 	- sudo chown -R ubuntu:ubuntu /home/ubuntu/.kube
 	- make db/migrate MIGRATE_DB_USER=${CI_MIGRATE_DB_USER} MIGRATE_DB_PASSWORD=${CI_MIGRATE_DB_PASSWORD} MIGRATE_DB_URL=${CI_MIGRATE_DB_URL}
-	- ./deploy/bin/trigger.sh qa ${DB_URL} $(version)
+	- m4 \
+          -Dapp_env=qa \
+          -Ddb_url=${DB_URL} \
+          -Dversion=$(version) \
+          deploy/deploy-macros.m4 deploy/deployment.template.yaml > deployment-qa-$(version).yaml
+	- kubectl apply -f deployment-qa-$(version).yaml --record
 
 ###############
 # Definitions #
