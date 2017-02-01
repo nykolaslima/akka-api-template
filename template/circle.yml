@@ -1,0 +1,32 @@
+machine:
+  hosts:
+    postgres: 127.0.0.1
+  pre:
+    - sudo curl -sSL https://s3.amazonaws.com/circle-downloads/install-circleci-docker.sh | bash -s -- 1.10.0
+  services:
+    - docker
+  environment:
+    AWS_DEFAULT_REGION: "us-east-1"
+    SBT_VERSION: "0.13.13"
+    SBT_OPTS: "-Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled"
+    GPROJECT_NAME: "$name$"
+    PROJECT_NAME: "api"
+    CLUSTER_NAME: "api-cluster"
+    CLOUDSDK_COMPUTE_ZONE: "us-east1-d"
+dependencies:
+  cache_directories:
+    - "~/.m2"
+    - "~/.ivy2"
+    - "~/.sbt"
+  override:
+    - make test/compile
+test:
+  override:
+    - sudo service postgresql stop
+    - make test
+
+deployment:
+  hub:
+    branch: master
+    commands:
+      - make circleci/gcloud/deploy

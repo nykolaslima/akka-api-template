@@ -1,0 +1,9 @@
+postgres:
+  container_name: postgres
+  image: postgres
+  environment:
+    - PGPASSWORD=postgres
+  ports:
+    - 5432:5432
+  volumes:
+    - ./src/main/resources/db:/docker-entrypoint-initdb.d

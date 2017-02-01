@@ -1,0 +1,5 @@
+.idea
+target/
+tmp/
+src/main/generated-proto/
+src/main/resources/public/swagger

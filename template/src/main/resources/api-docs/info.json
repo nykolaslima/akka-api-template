@@ -1,0 +1,15 @@
+{
+  "info": {
+    "description": "$name__word$ API",
+    "version": "1.0.0",
+    "title": "$name$ API",
+    "termsOfService": "https://github.com/$company$/$name$",
+    "license": {
+      "name": "Copyright",
+      "url": "https://github.com/$company$/$name$"
+    },
+    "contact": {
+      "email": "nykolas.lima@gmail.com"
+    }
+  }
+}
