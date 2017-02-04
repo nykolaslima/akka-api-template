@@ -1,0 +1,102 @@
+#!/bin/bash
+
+# Akka API Template generator
+#
+# Tool to generate new Akka projects following template structure
+#
+#     ./bin/generator --help
+#
+
+# Argument parsing
+#
+
+die() {
+  local _ret=$2
+  test -n "$_ret" || _ret=1
+  test "$_PRINT_HELP" = yes && print_help >&2
+  echo "$1" >&2
+  exit ${_ret}
+}
+
+# The defaults initialization
+_arg_organization=
+_arg_project_name=
+_arg_project_path=../
+
+# Function that prints general usage of the script.
+print_help() {
+  echo "Akka API template generator usage:"
+
+  printf '  Usage: %s [-p|--project-path <arg>] <organization> <project-name>\n' "$0"
+  printf "\t%s\n" "<organization>: organization name such as com.github.brennovich, com.spacex"
+  printf "\t%s\n" "<project-name>: name of the project such as my-project, iridium, inventory-api"
+  printf "\t%s\n" "-p,--project-path: where project will be generatared. Defaults to parent folder"
+  printf "\t%s\n" "-h,--help: Prints help"
+}
+
+while test $# -gt 0; do
+  _key="$1"
+
+  case "$_key" in
+    -p|--project-path|--project-path=*)
+      _val="${_key##--project-path=}"
+
+      if test "$_val" = "$_key"; then
+        test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
+
+        _val="$2"
+        shift
+      fi
+
+      _arg_project_path="$_val"
+      ;;
+    -h|--help)
+      print_help
+      exit 0
+      ;;
+    *)
+      _positionals+=("$1")
+      ;;
+  esac
+  shift
+done
+
+_positional_names=('_arg_organization' '_arg_project_name')
+test ${#_positionals[@]} -lt 2 && _PRINT_HELP=yes die "ERROR: Not enough positional arguments - we require organization and project name, but got ${#_positionals[@]}." 1
+test ${#_positionals[@]} -gt 2 && _PRINT_HELP=yes die "ERROR: There were spurious version arguments --- we expect exactly 2, but got ${#_positionals[@]} (the last one was: '${_positionals[*]: -1}')." 1
+
+for (( ii = 0; ii < ${#_positionals[@]}; ii++)); do
+  eval "${_positional_names[ii]}=\${_positionals[ii]}" || die "Error during argument parsing." 1
+done
+
+# Project generator
+#
+
+company="$(echo $_arg_organization | rev | cut -d. -f1 | rev)"
+name_word="$(echo $_arg_project_name | tr -d '-')"
+package_directory="$(echo $_arg_organization | sed 's/\./\//g')"
+
+_organization_regex="$(sed 's/\//\\\//g' <<< $package_directory)"
+_project_path="$(sed 's/\//\\\//g' <<< $_arg_project_path)"
+
+function parse_variables() {
+  sed "s/\$organization__packaged\\\$/$_organization_regex/g" \
+    | sed "s/\$company\\\$/$company/g" \
+    | sed "s/\$name\\\$/$_arg_project_name/g" \
+    | sed "s/\$name__word\\\$/$name_word/g" \
+    | sed "s/\$organization\\\$/$_arg_organization/g"
+}
+
+if [ -d "$_arg_project_path/$_arg_project_name" ]; then
+  die "ERROR: project \"$(realpath $_arg_project_path)/$_arg_project_name\" already exists!" 1
+fi
+
+echo "Copying files..."
+for template_item in $(find template/* template/**/* -type f); do
+  destination="$(echo $template_item | parse_variables | sed "s/^template/$_project_path\/$_arg_project_name/g")"
+
+  echo "$(echo $template_item | rev | cut -d/ -f1-3 | rev) -> $(realpath $destination)"
+
+  mkdir -p $(dirname $destination)
+  cat $template_item | parse_variables > $destination
+done
