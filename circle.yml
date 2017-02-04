@@ -1,0 +1,37 @@
+machine:
+  hosts:
+    postgres: 127.0.0.1
+  pre:
+    - sudo curl -sSL https://s3.amazonaws.com/circle-downloads/install-circleci-docker.sh | bash -s -- 1.10.0
+  services:
+    - docker
+  environment:
+    AWS_DEFAULT_REGION: "us-east-1"
+    SBT_VERSION: "0.13.13"
+    SBT_OPTS: "-Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled"
+    GPROJECT_NAME: "akka-api-template"
+    PROJECT_NAME: "api"
+    CLUSTER_NAME: "api-cluster"
+    CLOUDSDK_COMPUTE_ZONE: "us-east1-d"
+dependencies:
+  pre:
+    - sudo apt-get update; sudo apt-get install realpath
+  cache_directories:
+    - "~/.m2"
+    - "~/.ivy2"
+    - "~/.sbt"
+  override:
+    - ./bin/generator com.nykolaslima akka-api-template -p ./
+    - rm -rf bin template
+    - mv akka-api-template/* ./
+    - make test/compile
+test:
+  override:
+    - sudo service postgresql stop
+    - make test
+
+deployment:
+  hub:
+    branch: master
+    commands:
+      - make circleci/gcloud/deploy
