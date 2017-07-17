@@ -2,6 +2,17 @@
 
 Straightforwad scaffold of an Akka based web application API.
 
+## Usage
+```
+./bin/generator --help
+Akka API template generator usage:
+  Usage: ./bin/generator [-p|--project-path <arg>] <organization> <project-name>
+	<organization>: organization name such as com.github.brennovich, com.spacex
+	<project-name>: name of the project such as my-project, iridium, inventory-api
+	-p,--project-path: where project will be generatared. Defaults to parent folder
+	-h,--help: Prints help
+```
+
 ## Batteries Included
 
 It's used in real world, everything you need to set up a real world application is considered here, take a look in the
